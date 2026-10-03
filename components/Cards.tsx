@@ -20,7 +20,7 @@ export function TopicRow({ topic, index }: { topic: Topic; index?: number }) {
   );
 }
 
-export function ProblemCard({ problem }: { problem: Problem }) {
+export function ProblemCard({ problem, completed = false }: { problem: Problem; completed?: boolean }) {
   const course = courseById(problem.courseId);
   return (
     <Pressable
@@ -33,6 +33,7 @@ export function ProblemCard({ problem }: { problem: Problem }) {
       </View>
       <Text style={styles.problemTitle}>{problem.title}</Text>
       <Text style={styles.problemPrompt} numberOfLines={2}>{problem.prompt}</Text>
+      {completed ? <Text style={styles.completed}>✓ 已完成</Text> : null}
       <Text style={styles.openText}>查看详细解析  →</Text>
     </Pressable>
   );
@@ -74,6 +75,7 @@ const styles = StyleSheet.create({
   problemTitle: { color: palette.ink, fontSize: 18, fontWeight: '800', marginTop: spacing.sm },
   problemPrompt: { color: palette.muted, fontSize: 14, lineHeight: 21, marginTop: spacing.xs },
   openText: { color: palette.green, fontSize: 13, fontWeight: '700', marginTop: spacing.md },
+  completed: { color: palette.green, fontSize: 12, fontWeight: '700', marginTop: spacing.sm },
   empty: { alignItems: 'center', paddingVertical: 48 },
   emptySymbol: { color: palette.line, fontSize: 42 },
   emptyText: { color: palette.muted, fontSize: 14, marginTop: spacing.sm },

@@ -1,4 +1,4 @@
-import { Stack, useLocalSearchParams } from 'expo-router';
+import { router, Stack, useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useState } from 'react';
 
@@ -28,10 +28,12 @@ export default function ProblemDetailScreen() {
     <AppScreen>
       <Stack.Screen options={{ title: problem.title }} />
       <View style={styles.hero}>
-        <View style={styles.metaRow}>
+        <Pressable accessibilityRole="link"
+          onPress={() => router.push({ pathname: '/topic/[slug]', params: { slug: problem.topicId } })}
+          style={styles.metaRow}>
           <View style={[styles.dot, { backgroundColor: course?.accent }]} />
-          <Text style={styles.meta}>{course?.titleZh} · {topic?.titleZh}</Text>
-        </View>
+          <Text style={styles.meta}>{course?.titleZh} · {topic?.titleZh} ↗</Text>
+        </Pressable>
         <Text style={styles.title}>{problem.title}</Text>
         <Text style={styles.difficulty}>{'★'.repeat(problem.difficulty)}{'☆'.repeat(5 - problem.difficulty)}</Text>
       </View>

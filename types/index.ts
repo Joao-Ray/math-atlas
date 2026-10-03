@@ -25,6 +25,7 @@ export type Topic = {
   prerequisites: string[];
   formulaIds: string[];
   problemIds: string[];
+  learningNotes?: string[];
 };
 
 export type Formula = {
@@ -34,6 +35,7 @@ export type Formula = {
   titleZh: string;
   latex: string;
   explanation: string;
+  conditions?: string;
   topicId: string;
 };
 
@@ -60,4 +62,6 @@ export type Paper = {
   tags: string[];
   source: string;
   url: string;
+  topicIds: string[];
+  readingGuide: string;
 };

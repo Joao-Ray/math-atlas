@@ -6,7 +6,7 @@ import { MathFormula } from '@/components/MathFormula';
 import { SectionTitle } from '@/components/Typography';
 import { palette, radii, spacing } from '@/constants/Theme';
 import { useStudy } from '@/contexts/StudyContext';
-import { courseById, formulaById, problemById, topicById } from '@/data/mockData';
+import { courseById, formulaById, papers, problemById, topicById } from '@/data/mockData';
 
 export default function TopicDetailScreen() {
   const { slug } = useLocalSearchParams<{ slug: string }>();
@@ -25,6 +25,8 @@ export default function TopicDetailScreen() {
   const isFavorite = favoriteTopics.includes(topic.id);
   const relatedFormulas = topic.formulaIds.map(formulaById).filter(Boolean);
   const relatedProblems = topic.problemIds.map(problemById).filter(Boolean);
+  const relatedPapers = papers.filter((paper) => paper.topicIds.includes(topic.id))
+    .sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
 
   return (
     <AppScreen>
@@ -49,6 +51,15 @@ export default function TopicDetailScreen() {
       <SectionTitle>定义</SectionTitle>
       <View style={styles.textCard}><Text style={styles.body}>{topic.definition}</Text></View>
 
+      {topic.learningNotes?.length ? (
+        <>
+          <SectionTitle>学习方法与易错点</SectionTitle>
+          <View style={styles.textCard}>
+            {topic.learningNotes.map((note, index) => <Text key={note} style={styles.note}>{index + 1}. {note}</Text>)}
+          </View>
+        </>
+      ) : null}
+
       {relatedFormulas.length ? (
         <>
           <SectionTitle>核心公式</SectionTitle>
@@ -58,6 +69,12 @@ export default function TopicDetailScreen() {
               <Text style={styles.formulaMeta}>{formula.title}</Text>
               <MathFormula latex={formula.latex} />
               <Text style={styles.body}>{formula.explanation}</Text>
+              {formula.conditions ? (
+                <View style={styles.conditions}>
+                  <Text style={styles.conditionsTitle}>适用条件</Text>
+                  <Text style={styles.body}>{formula.conditions}</Text>
+                </View>
+              ) : null}
             </View>
           ) : null)}
         </>
@@ -95,6 +112,24 @@ export default function TopicDetailScreen() {
       ) : null) : (
         <View style={styles.textCard}><Text style={styles.body}>例题正在补充中。</Text></View>
       )}
+
+      {relatedPapers.length ? (
+        <>
+          <SectionTitle>相关论文 · 拓展阅读</SectionTitle>
+          <Text style={styles.readingNotice}>这些知识点可作为阅读入口；论文中的高级理论可能需要额外背景。</Text>
+          {relatedPapers.map((paper) => (
+            <Pressable
+              key={paper.id}
+              accessibilityRole="button"
+              onPress={() => router.push({ pathname: '/(tabs)/papers', params: { topic: topic.id, paper: paper.id } })}
+              style={({ pressed }) => [styles.textCard, styles.paperCard, pressed && styles.pressed]}>
+              <Text style={styles.paperTitle}>{paper.title}</Text>
+              <Text style={styles.formulaMeta}>{paper.source} · {paper.publishedAt}</Text>
+              <Text style={styles.paperAction}>查看阅读建议与原文入口 →</Text>
+            </Pressable>
+          ))}
+        </>
+      ) : null}
     </AppScreen>
   );
 }
@@ -117,6 +152,13 @@ const styles = StyleSheet.create({
   intuition: { color: palette.white, fontSize: 16, lineHeight: 25, fontWeight: '600', flex: 1 },
   textCard: { backgroundColor: palette.surface, borderRadius: radii.md, borderColor: palette.line, borderWidth: 1, padding: spacing.md },
   body: { color: palette.muted, fontSize: 14, lineHeight: 22 },
+  note: { color: palette.muted, fontSize: 14, lineHeight: 23, marginVertical: 4 },
+  conditions: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: palette.line, marginTop: spacing.sm, paddingTop: spacing.sm },
+  conditionsTitle: { color: palette.green, fontSize: 12, fontWeight: '800', marginBottom: 4 },
+  readingNotice: { color: palette.muted, fontSize: 12, lineHeight: 19, marginBottom: spacing.sm },
+  paperCard: { marginBottom: spacing.sm },
+  paperTitle: { color: palette.ink, fontSize: 15, lineHeight: 22, fontWeight: '700' },
+  paperAction: { color: palette.green, fontSize: 12, fontWeight: '700', marginTop: spacing.sm },
   formulaCard: { backgroundColor: palette.surface, borderRadius: radii.lg, borderColor: palette.line, borderWidth: 1, padding: spacing.md, marginBottom: spacing.sm },
   formulaTitle: { color: palette.ink, fontSize: 17, fontWeight: '800' },
   formulaMeta: { color: palette.muted, fontSize: 11, marginTop: 3 },

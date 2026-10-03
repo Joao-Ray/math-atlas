@@ -47,6 +47,12 @@ export default function FormulasScreen() {
             </View>
             <MathFormula latex={formula.latex} compact />
             <Text style={styles.explanation}>{formula.explanation}</Text>
+            {formula.conditions ? (
+              <View style={styles.conditions}>
+                <Text style={styles.conditionsTitle}>适用条件</Text>
+                <Text style={styles.explanation}>{formula.conditions}</Text>
+              </View>
+            ) : null}
           </Pressable>
         );
       }) : <EmptyState />}
@@ -68,4 +74,6 @@ const styles = StyleSheet.create({
   favoriteText: { color: palette.muted, fontSize: 19 },
   favoriteTextActive: { color: palette.gold },
   explanation: { color: palette.muted, fontSize: 13, lineHeight: 20 },
+  conditions: { borderTopWidth: StyleSheet.hairlineWidth, borderTopColor: palette.line, marginTop: spacing.sm, paddingTop: spacing.sm },
+  conditionsTitle: { color: palette.green, fontSize: 12, fontWeight: '800', marginBottom: 4 },
 });
