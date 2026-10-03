@@ -1,0 +1,43 @@
+import { Link, Stack } from 'expo-router';
+import { StyleSheet, Text, View } from 'react-native';
+
+import { palette } from '@/constants/Theme';
+
+export default function NotFoundScreen() {
+  return (
+    <>
+      <Stack.Screen options={{ title: '页面不存在' }} />
+      <View style={styles.container}>
+        <Text style={styles.title}>没有找到这个页面</Text>
+
+        <Link href="/" style={styles.link}>
+          <Text style={styles.linkText}>返回首页</Text>
+        </Link>
+      </View>
+    </>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    padding: 20,
+    backgroundColor: palette.background,
+  },
+  title: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: palette.ink,
+  },
+  link: {
+    marginTop: 15,
+    paddingVertical: 15,
+  },
+  linkText: {
+    fontSize: 14,
+    color: palette.green,
+    fontWeight: '700',
+  },
+});
