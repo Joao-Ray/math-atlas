@@ -5,11 +5,11 @@
 ## 已实现
 
 - Home：首页学习进度、今日公式、每日一题、论文探索
-- Topics：5 门课程、40 个知识点、中英文搜索和课程筛选
-- Topic Detail：直觉、定义、前置知识、相关例题与论文，10 个基础知识点包含学习方法和易错点
-- Formulas：51 条公式、关键公式适用条件、离线 MathJax → SVG 渲染与搜索
-- Problems：40 道经典例题，覆盖全部 40 个知识点，支持课程/难度/完成状态组合筛选
-- Papers：12 篇已核对 arXiv 来源的精选论文，包含中文阅读建议、知识点双向关联与摘要搜索
+- Topics：5 门课程、50 个知识点，中英文搜索和课程筛选
+- Topic Detail：直觉、定义、前置知识、相关例题与论文，20 个知识点包含学习方法和易错点
+- Formulas：66 条公式，关键公式适用条件、10 条可展开的分步推导、离线 MathJax → SVG 渲染与搜索
+- Problems：55 道经典例题，覆盖全部 50 个知识点，支持课程/难度/完成状态组合筛选
+- Papers：16 篇已核对 arXiv 来源的精选论文，包含中文阅读建议、知识点双向关联与摘要搜索
 - 我的学习：知识点/公式收藏、例题完成状态和本地进度
 - 设置与隐私：本地数据清除、应用内隐私政策
 - iOS、Android 与 Web 共用一套页面和路由
@@ -48,11 +48,31 @@ npm run start
 - Android 模拟器：按 `a`
 - 浏览器：按 `w`，或运行 `npm run web`
 
-### 4. 类型检查
+### 4. 检查类型与学习内容
 
 ```bash
 npm run typecheck
+npm run validate:content
 ```
+
+内容检查会验证稳定 ID、课程归属、知识点与例题/公式的双向关联、前置知识图是否有环、论文元数据格式，以及全部公式与解析中的 LaTeX 是否可离线渲染。它不能代替数学内容的人工复核，也不会在线核验论文。
+
+## 本轮拓展内容
+
+每门课程新增 2 个知识点，并为已有知识点增加复合求导、正交残差、全方差、后验预测与布朗鞅等进阶练习：
+
+- 微积分：换元与分部积分、拉格朗日乘子与约束极值
+- 线性代数：矩阵对角化、二次型与正定矩阵
+- 概率论：随机变量变换、马尔可夫与切比雪夫不等式
+- 统计学：未知方差的 t 推断、卡方拟合优度检验
+- 随机过程：随机游走、泊松过程叠加与稀疏化
+
+新增论文元数据于 2026-10-04 对照 arXiv 核对。列表日期统一使用首次提交日期，不代表最新修订日期。中文摘要与阅读建议为本地编辑内容，仅提供阅读入口：
+
+- [Scientific Applications Leveraging Randomized Linear Algebra](https://arxiv.org/abs/2506.16457)
+- [Unbiased Markov Chain Monte Carlo: what, why, and how](https://arxiv.org/abs/2406.06851)
+- [Concentration Inequalities for Statistical Inference](https://arxiv.org/abs/2011.02258)
+- [Randomized Numerical Linear Algebra: Foundations & Algorithms](https://arxiv.org/abs/2002.01387)
 
 ## 目录
 
@@ -67,7 +87,10 @@ app/
 components/           通用布局、卡片、搜索、公式组件
 constants/            颜色与间距
 contexts/             本地学习状态与持久化
-data/mockData.ts      第一版全部本地数据
+data/mockData.ts      汇总数据与查询函数
+data/extensions.ts    新增知识点、公式、例题与已核对论文
+data/formulaDerivations.ts  现有核心公式的分步推导
+scripts/validate-content.cjs  离线内容完整性与 LaTeX 检查
 store/                App Store 文案、隐私政策与提交清单
 types/                领域模型类型
 ```

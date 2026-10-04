@@ -8,6 +8,8 @@ import { palette, radii, spacing } from '@/constants/Theme';
 import { useStudy } from '@/contexts/StudyContext';
 import { courseById, papers, problems, topicById } from '@/data/mockData';
 
+const featuredPapers = [...papers].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 3);
+
 export default function HomeScreen() {
   const { completedProblems, favoriteFormulas, favoriteTopics } = useStudy();
   const dailyProblem = problems[Math.floor(Date.now() / 86400000) % problems.length];
@@ -91,14 +93,19 @@ export default function HomeScreen() {
         论文探索
       </SectionTitle>
       <View style={styles.paperList}>
-        {papers.slice(0, 3).map((paper, index) => (
-          <View key={paper.id} style={[styles.paperRow, index === 2 && styles.lastRow]}>
+        {featuredPapers.map((paper, index) => (
+          <Pressable
+            key={paper.id}
+            accessibilityRole="button"
+            accessibilityLabel={`阅读 ${paper.title}`}
+            onPress={() => router.push({ pathname: '/(tabs)/papers', params: { paper: paper.id } })}
+            style={({ pressed }) => [styles.paperRow, index === featuredPapers.length - 1 && styles.lastRow, pressed && styles.pressed]}>
             <View style={styles.paperNumber}><Text style={styles.paperNumberText}>0{index + 1}</Text></View>
             <View style={styles.paperContent}>
               <Text style={styles.paperTitle} numberOfLines={2}>{paper.title}</Text>
-              <Text style={styles.paperMeta}>{paper.category} · {paper.publishedAt.slice(5)}</Text>
+              <Text style={styles.paperMeta}>{paper.category} · {paper.publishedAt}</Text>
             </View>
-          </View>
+          </Pressable>
         ))}
       </View>
       <Text style={styles.dataNote}>论文条目已核对 arXiv 来源；后续可接入 API 自动更新。</Text>

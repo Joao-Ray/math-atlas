@@ -36,6 +36,7 @@ export type Formula = {
   latex: string;
   explanation: string;
   conditions?: string;
+  derivation?: { title: string; body: string; latex?: string }[];
   topicId: string;
 };
 

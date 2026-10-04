@@ -1,4 +1,6 @@
 import { Course, Formula, Paper, Problem, Topic } from '@/types';
+import { extensionFormulas, extensionPapers, extensionProblems, extensionTopics } from './extensions';
+import { formulaDerivations } from './formulaDerivations';
 
 export const courses: Course[] = [
   {
@@ -56,7 +58,7 @@ export const topics: Topic[] = [
     summary: '用局部线性近似描述瞬时变化率。',
     definition: '导数是函数增量与自变量增量之比在增量趋于零时的极限。',
     intuition: '把曲线无限放大，它在一点附近看起来像直线；导数就是这条直线的斜率。',
-    prerequisites: ['limits'], formulaIds: ['derivative-definition', 'chain-rule'], problemIds: ['tangent-line'],
+    prerequisites: ['limits'], formulaIds: ['derivative-definition', 'chain-rule'], problemIds: ['tangent-line', 'composite-exponential-derivative'],
   },
   {
     id: 'integrals', courseId: 'calculus', title: 'Integrals', titleZh: '积分',
@@ -192,7 +194,7 @@ export const topics: Topic[] = [
     summary: '给定当前信息后，未来条件期望等于当前值的公平过程。',
     definition: '若 E[|Xt|]<∞ 且 E[Xt|Fs]=Xs（s≤t），则 X 是鞅。',
     intuition: '即使知道全部历史，也无法系统性预测下一步的平均收益。',
-    prerequisites: ['conditional-probability', 'brownian-motion'], formulaIds: ['martingale-property'], problemIds: ['fair-coin-martingale'],
+    prerequisites: ['conditional-probability', 'brownian-motion'], formulaIds: ['martingale-property'], problemIds: ['fair-coin-martingale', 'brownian-square-martingale'],
   },
   {
     id: 'sequences-series', courseId: 'calculus', title: 'Sequences & Series', titleZh: '数列与级数',
@@ -220,7 +222,7 @@ export const topics: Topic[] = [
     summary: '用垂直关系分解向量并寻找最佳近似。',
     definition: '若 u·v=0，则 u 与 v 正交；投影是子空间中距离原向量最近的点。',
     intuition: '投影像光照出的影子，保留向量在指定方向上的成分。',
-    prerequisites: ['vectors'], formulaIds: ['vector-projection'], problemIds: ['project-vector'],
+    prerequisites: ['vectors'], formulaIds: ['vector-projection'], problemIds: ['project-vector', 'projection-orthogonal-residual'],
   },
   {
     id: 'law-large-numbers', courseId: 'probability', title: 'Law of Large Numbers', titleZh: '大数定律',
@@ -248,7 +250,7 @@ export const topics: Topic[] = [
     summary: '用数据把参数的先验认识更新为后验分布。',
     definition: '后验分布正比于似然函数与先验分布的乘积。',
     intuition: '先验是出发前的判断，数据是新证据，后验是看完证据后的判断。',
-    prerequisites: ['conditional-probability', 'estimation'], formulaIds: ['bayes-posterior'], problemIds: ['beta-binomial'],
+    prerequisites: ['conditional-probability', 'estimation'], formulaIds: ['bayes-posterior'], problemIds: ['beta-binomial', 'beta-predictive-probability'],
   },
   {
     id: 'stationary-distributions', courseId: 'stochastic-process', title: 'Stationary Distributions', titleZh: '平稳分布',
@@ -304,7 +306,7 @@ export const topics: Topic[] = [
     summary: '在已知部分信息后重新计算随机变量的平均值。',
     definition: '条件期望 E[X|G] 是关于信息 σ-代数 G 可测、并保持相应积分一致的随机变量。',
     intuition: '它是利用现有信息对未知量作出的最佳均方预测。',
-    prerequisites: ['conditional-probability', 'expectation-variance'], formulaIds: ['tower-property'], problemIds: ['die-parity-expectation'],
+    prerequisites: ['conditional-probability', 'expectation-variance'], formulaIds: ['tower-property', 'total-variance'], problemIds: ['die-parity-expectation', 'die-total-variance'],
   },
   {
     id: 'analysis-of-variance', courseId: 'statistics', title: 'Analysis of Variance', titleZh: '方差分析',
@@ -334,9 +336,10 @@ export const topics: Topic[] = [
     intuition: '布朗路径过于粗糙，普通微积分少算了一项；伊藤公式正好补上它。',
     prerequisites: ['brownian-motion', 'multivariable-calculus'], formulaIds: ['ito-formula'], problemIds: ['log-geometric-brownian'],
   },
+  ...extensionTopics,
 ];
 
-export const formulas: Formula[] = [
+const baseFormulas: Formula[] = [
   { id: 'limit-definition', courseId: 'calculus', topicId: 'limits', title: 'Epsilon–delta limit', titleZh: '极限的 ε–δ 定义', latex: '\\lim_{x\\to a}f(x)=L', explanation: '对任意 ε>0，都存在 δ>0，使 0<|x-a|<δ 时有 |f(x)-L|<ε。' },
   { id: 'derivative-definition', courseId: 'calculus', topicId: 'derivatives', title: 'Derivative', titleZh: '导数定义', latex: "f'(x)=\\lim_{h\\to0}\\frac{f(x+h)-f(x)}{h}", explanation: '割线斜率在间隔趋于零时的极限。' },
   { id: 'chain-rule', courseId: 'calculus', topicId: 'derivatives', title: 'Chain rule', titleZh: '链式法则', latex: '\\frac{d}{dx}f(g(x))=f\'(g(x))g\'(x)', explanation: '复合函数的变化率等于外层变化率乘以内层变化率。' },
@@ -388,7 +391,13 @@ export const formulas: Formula[] = [
   { id: 'simple-regression', courseId: 'statistics', topicId: 'regression', title: 'Simple linear regression', titleZh: '一元线性回归系数', latex: '\\hat\\beta_1=\\frac{\\sum_i(x_i-\\bar x)(y_i-\\bar y)}{\\sum_i(x_i-\\bar x)^2},\\quad\\hat\\beta_0=\\bar y-\\hat\\beta_1\\bar x', explanation: '先由共同变化与 x 的变异求斜率，再用样本中心确定截距。', conditions: '模型含截距，且 x 的观测值不全部相同，使分母大于 0。' },
   { id: 'markov-distribution', courseId: 'stochastic-process', topicId: 'markov-chains', title: 'Markov distribution update', titleZh: '马尔可夫链分布更新', latex: 'p_n=p_0P^n', explanation: '从初始分布出发，逐次右乘转移矩阵得到未来状态分布。', conditions: '离散时间齐次马尔可夫链；p₀ 为行概率向量，P 每行非负且行和为 1。' },
   { id: 'brownian-covariance', courseId: 'stochastic-process', topicId: 'brownian-motion', title: 'Brownian covariance', titleZh: '布朗运动协方差', latex: '\\operatorname{Cov}(W_s,W_t)=\\min(s,t)', explanation: '两个时刻共享从 0 到较早时刻的波动，因此通常不是独立的。', conditions: 'W 是从 0 出发的标准布朗运动，s,t≥0。' },
+  ...extensionFormulas,
 ];
+
+export const formulas: Formula[] = baseFormulas.map((formula) => ({
+  ...formula,
+  derivation: formula.derivation ?? formulaDerivations[formula.id],
+}));
 
 export const problems: Problem[] = [
   {
@@ -788,6 +797,7 @@ export const problems: Problem[] = [
       { title: '利用独立性', body: '第二项为 0，第一项为 1，因此协方差为 1。', latex: '\\operatorname{Cov}(W_1,W_3)=1' },
     ], answer: 'W₃−W₁~N(0,2)，其中 2 是方差；Cov(W₁,W₃)=1。',
   },
+  ...extensionProblems,
 ];
 
 export const papers: Paper[] = [
@@ -887,6 +897,7 @@ export const papers: Paper[] = [
     topicIds: ['multivariable-calculus', 'expectation-variance'],
     readingGuide: '先复习梯度、一阶矩和二阶矩，再跟读算法更新式及偏差修正。注意二阶矩与方差不是同一个量。',
   },
+  ...extensionPapers,
 ];
 
 export const courseById = (id: string) => courses.find((course) => course.id === id);

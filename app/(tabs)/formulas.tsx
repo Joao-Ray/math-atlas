@@ -5,18 +5,23 @@ import { router } from 'expo-router';
 import { AppScreen } from '@/components/AppScreen';
 import { EmptyState } from '@/components/Cards';
 import { MathFormula } from '@/components/MathFormula';
+import { FormulaDerivation } from '@/components/FormulaDerivation';
 import { SearchField } from '@/components/SearchField';
 import { PageTitle } from '@/components/Typography';
 import { palette, radii, spacing } from '@/constants/Theme';
 import { useStudy } from '@/contexts/StudyContext';
-import { courseById, formulas } from '@/data/mockData';
+import { courseById, formulas, topicById } from '@/data/mockData';
 
 export default function FormulasScreen() {
   const [query, setQuery] = useState('');
   const { favoriteFormulas, toggleFormula } = useStudy();
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
-    return formulas.filter((item) => !q || `${item.title} ${item.titleZh} ${item.explanation} ${item.latex}`.toLowerCase().includes(q));
+    return formulas.filter((item) => !q || [
+      item.title, item.titleZh, item.explanation, item.conditions ?? '', item.latex,
+      topicById(item.topicId)?.titleZh ?? '',
+      ...(item.derivation ?? []).flatMap((step) => [step.title, step.body, step.latex ?? '']),
+    ].join(' ').toLowerCase().includes(q));
   }, [query]);
 
   return (
@@ -53,6 +58,7 @@ export default function FormulasScreen() {
                 <Text style={styles.explanation}>{formula.conditions}</Text>
               </View>
             ) : null}
+            <FormulaDerivation formula={formula} />
           </Pressable>
         );
       }) : <EmptyState />}

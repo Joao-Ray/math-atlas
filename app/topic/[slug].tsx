@@ -3,6 +3,7 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
 import { MathFormula } from '@/components/MathFormula';
+import { FormulaDerivation } from '@/components/FormulaDerivation';
 import { SectionTitle } from '@/components/Typography';
 import { palette, radii, spacing } from '@/constants/Theme';
 import { useStudy } from '@/contexts/StudyContext';
@@ -75,6 +76,7 @@ export default function TopicDetailScreen() {
                   <Text style={styles.body}>{formula.conditions}</Text>
                 </View>
               ) : null}
+              <FormulaDerivation formula={formula} />
             </View>
           ) : null)}
         </>
