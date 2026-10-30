@@ -6,18 +6,21 @@ import { AppScreen } from '@/components/AppScreen';
 import { EmptyState } from '@/components/Cards';
 import { SearchField } from '@/components/SearchField';
 import { PageTitle } from '@/components/Typography';
+import { OnlinePapers } from '@/components/OnlinePapers';
 import { palette, radii, spacing } from '@/constants/Theme';
 import { papers, topicById } from '@/data/mockData';
 
 export default function PapersScreen() {
-  const { topic: topicId, paper: paperId } = useLocalSearchParams<{ topic?: string; paper?: string }>();
+  const { topic: topicId, paper: paperId, source } = useLocalSearchParams<{ topic?: string; paper?: string; source?: string }>();
   const selectedTopic = topicById(topicId ?? '');
+  const [mode, setMode] = useState<'online' | 'curated'>(paperId || topicId ? 'curated' : 'online');
   const [query, setQuery] = useState('');
   const [expanded, setExpanded] = useState<string | null>(null);
   useEffect(() => {
     setExpanded(paperId ?? null);
     setQuery('');
-  }, [paperId, topicId]);
+    setMode(source === 'online' ? 'online' : source === 'curated' || paperId || topicId ? 'curated' : 'online');
+  }, [paperId, topicId, source]);
   const results = useMemo(() => {
     const q = query.trim().toLowerCase();
     return papers
@@ -32,7 +35,15 @@ export default function PapersScreen() {
 
   return (
     <AppScreen>
-      <PageTitle subtitle="从可靠来源精选数学、统计与计算方向论文。">精选论文</PageTitle>
+      <PageTitle subtitle="在线获取 arXiv 元数据，或阅读本地精选与中文阅读建议。">数学论文</PageTitle>
+      <View style={styles.sourceTabs}>
+        {(['online', 'curated'] as const).map((value) => <Pressable key={value} accessibilityRole="button"
+          accessibilityLabel={value === 'online' ? '切换在线论文更新' : '切换本地精选论文'} accessibilityState={{ selected: mode === value }}
+          onPress={() => setMode(value)} style={[styles.sourceTab, mode === value && styles.sourceTabActive]}>
+          <Text style={mode === value ? styles.sourceTabWhite : styles.filterReset}>{value === 'online' ? '在线更新' : '本地精选 ' + papers.length}</Text>
+        </Pressable>)}
+      </View>
+      {mode === 'online' ? <OnlinePapers onShowCurated={() => setMode('curated')} /> : <>
       <View style={styles.notice}>
         <Text style={styles.noticeTitle}>真实来源 · 本地精选</Text>
         <Text style={styles.noticeText}>精选条目已核对 arXiv 来源，列表并非实时更新。展开卡片可查看摘要、阅读建议和相关知识点。</Text>
@@ -98,11 +109,16 @@ export default function PapersScreen() {
           </Pressable>
         );
       }) : <EmptyState label="没有匹配的论文" />}
+      </>}
     </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  sourceTabs: { flexDirection: 'row', gap: 10, marginBottom: spacing.md },
+  sourceTab: { paddingVertical: 12, paddingHorizontal: 18, borderRadius: radii.pill, borderWidth: 1, borderColor: palette.green },
+  sourceTabActive: { backgroundColor: palette.green },
+  sourceTabWhite: { color: palette.white, fontSize: 13, fontWeight: '700' },
   notice: { backgroundColor: '#F2E5C8', borderRadius: radii.md, padding: spacing.md, marginBottom: spacing.md },
   noticeTitle: { color: '#715118', fontWeight: '800', fontSize: 13 },
   noticeText: { color: '#715118', fontSize: 12, lineHeight: 18, marginTop: 3 },

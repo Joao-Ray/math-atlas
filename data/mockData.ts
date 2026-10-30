@@ -1,6 +1,18 @@
 import { Course, Formula, Paper, Problem, Topic } from '@/types';
 import { extensionFormulas, extensionPapers, extensionProblems, extensionTopics } from './extensions';
 import { formulaDerivations } from './formulaDerivations';
+import { advancedCourses, advancedFormulas, advancedProblems, advancedTopics } from './advancedCurriculum';
+import { examFormulas, examTopics, pastPaperProblems } from './pastPapers';
+import { practiceFormulas, practiceProblems, practiceTopics } from './practiceExpansion';
+import { expansionFormulas, expansionProblems, expansionTopics } from './courseExpansionV16';
+import { textbookFormulas, textbookProblems, textbookTopics } from './textbookExpansionV17';
+import { course70Formulas, course70Problems, course70Topics } from './courseExpansion70';
+import { expansionV19Formulas, expansionV19Problems, expansionV19Topics } from './courseExpansionV19';
+import { expansionV110Formulas, expansionV110Problems, expansionV110Topics } from './courseExpansionV110';
+import { statisticsV111Formulas, statisticsV111Problems, statisticsV111Topics } from './statisticsExpansionV111';
+import { stochasticV111Formulas, stochasticV111Problems, stochasticV111Topics } from './stochasticExpansionV111';
+import { expansionV112Formulas, expansionV112Problems, expansionV112Topics } from './courseExpansionV112';
+import { tenVersionFormulas, tenVersionProblems, tenVersionTopics } from './tenVersionExpansion';
 
 export const courses: Course[] = [
   {
@@ -43,9 +55,10 @@ export const courses: Course[] = [
     accent: '#255C45',
     icon: 'Xt',
   },
+  ...advancedCourses,
 ];
 
-export const topics: Topic[] = [
+const baseTopics: Topic[] = [
   {
     id: 'limits', courseId: 'calculus', title: 'Limits & Continuity', titleZh: '极限与连续',
     summary: '研究函数在某点附近或无穷远处的趋势。',
@@ -337,7 +350,24 @@ export const topics: Topic[] = [
     prerequisites: ['brownian-motion', 'multivariable-calculus'], formulaIds: ['ito-formula'], problemIds: ['log-geometric-brownian'],
   },
   ...extensionTopics,
+  ...advancedTopics,
+  ...examTopics,
+  ...practiceTopics,
+  ...expansionTopics,
+  ...textbookTopics,
+  ...course70Topics,
+  ...expansionV19Topics,
+  ...expansionV110Topics,
+  ...statisticsV111Topics,
+  ...stochasticV111Topics,
+  ...expansionV112Topics,
+  ...tenVersionTopics,
 ];
+
+export const topics: Topic[] = baseTopics.map((topic) => {
+  const extra = [...pastPaperProblems, ...practiceProblems].filter((problem) => problem.topicId === topic.id && !topic.problemIds.includes(problem.id)).map((problem) => problem.id);
+  return extra.length ? { ...topic, problemIds: [...topic.problemIds, ...extra] } : topic;
+});
 
 const baseFormulas: Formula[] = [
   { id: 'limit-definition', courseId: 'calculus', topicId: 'limits', title: 'Epsilon–delta limit', titleZh: '极限的 ε–δ 定义', latex: '\\lim_{x\\to a}f(x)=L', explanation: '对任意 ε>0，都存在 δ>0，使 0<|x-a|<δ 时有 |f(x)-L|<ε。' },
@@ -392,6 +422,18 @@ const baseFormulas: Formula[] = [
   { id: 'markov-distribution', courseId: 'stochastic-process', topicId: 'markov-chains', title: 'Markov distribution update', titleZh: '马尔可夫链分布更新', latex: 'p_n=p_0P^n', explanation: '从初始分布出发，逐次右乘转移矩阵得到未来状态分布。', conditions: '离散时间齐次马尔可夫链；p₀ 为行概率向量，P 每行非负且行和为 1。' },
   { id: 'brownian-covariance', courseId: 'stochastic-process', topicId: 'brownian-motion', title: 'Brownian covariance', titleZh: '布朗运动协方差', latex: '\\operatorname{Cov}(W_s,W_t)=\\min(s,t)', explanation: '两个时刻共享从 0 到较早时刻的波动，因此通常不是独立的。', conditions: 'W 是从 0 出发的标准布朗运动，s,t≥0。' },
   ...extensionFormulas,
+  ...advancedFormulas,
+  ...examFormulas,
+  ...practiceFormulas,
+  ...expansionFormulas,
+  ...textbookFormulas,
+  ...course70Formulas,
+  ...expansionV19Formulas,
+  ...expansionV110Formulas,
+  ...statisticsV111Formulas,
+  ...stochasticV111Formulas,
+  ...expansionV112Formulas,
+  ...tenVersionFormulas,
 ];
 
 export const formulas: Formula[] = baseFormulas.map((formula) => ({
@@ -798,6 +840,18 @@ export const problems: Problem[] = [
     ], answer: 'W₃−W₁~N(0,2)，其中 2 是方差；Cov(W₁,W₃)=1。',
   },
   ...extensionProblems,
+  ...advancedProblems,
+  ...pastPaperProblems,
+  ...practiceProblems,
+  ...expansionProblems,
+  ...textbookProblems,
+  ...course70Problems,
+  ...expansionV19Problems,
+  ...expansionV110Problems,
+  ...statisticsV111Problems,
+  ...stochasticV111Problems,
+  ...expansionV112Problems,
+  ...tenVersionProblems,
 ];
 
 export const papers: Paper[] = [

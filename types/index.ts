@@ -3,7 +3,12 @@ export type CourseId =
   | 'linear-algebra'
   | 'probability'
   | 'statistics'
-  | 'stochastic-process';
+  | 'stochastic-process'
+  | 'higher-algebra'
+  | 'complex-analysis'
+  | 'analytic-geometry'
+  | 'measure-theory'
+  | 'mathematical-analysis';
 
 export type Course = {
   id: CourseId;
@@ -26,6 +31,7 @@ export type Topic = {
   formulaIds: string[];
   problemIds: string[];
   learningNotes?: string[];
+  sourceNote?: string;
 };
 
 export type Formula = {
@@ -51,6 +57,22 @@ export type Problem = {
   hints: string[];
   steps: { title: string; body: string; latex?: string }[];
   answer: string;
+  practiceSet?: 'analysis' | 'linear-algebra' | 'calculus';
+  source?: {
+    kind: 'original' | 'competition-style';
+    label: string;
+  } | {
+    kind: 'past-paper';
+    label: string;
+    exam: string;
+    paper: '非数学 A 类' | '非数学 B 类' | '非数学 A/B 类';
+    question: string;
+    documentTitle: string;
+    pdfPages: number[];
+    printedPages: number[];
+    verificationNote: string;
+    editorialNote?: string;
+  };
 };
 
 export type Paper = {

@@ -1,0 +1,20 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const ts = require('typescript');
+const previous = require.extensions['.ts'];
+require.extensions['.ts'] = (mod, file) => mod._compile(ts.transpileModule(fs.readFileSync(file, 'utf8'), {compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,file);
+let links;
+try { links = require('../data/projectLinks.ts'); } finally { if(previous) require.extensions['.ts']=previous; else delete require.extensions['.ts']; }
+const candidate = {id:'c70-calculus-lhopital-exercise-7',title:'极限 & a/b? #纠错',draft:'PRIVATE_DRAFT',answer:'PRIVATE_ANSWER',email:'PRIVATE_EMAIL'};
+const url = new URL(links.problemFeedbackUrl(candidate));
+assert.equal(url.origin,'https://github.com');
+assert.equal(url.pathname,'/Joao-Ray/math-atlas/issues/new');
+assert.ok(url.searchParams.get('title').includes('极限 & a/b? #纠错'));
+assert.ok(url.searchParams.get('body').includes(candidate.id));
+assert.ok(url.searchParams.get('body').includes('https://lemivanta-math.hangruij.chatgpt.site/problem/'+candidate.id));
+for(const token of ['PRIVATE_DRAFT','PRIVATE_ANSWER','PRIVATE_EMAIL']) assert.ok(!url.href.includes(token));
+const special = new URL(links.problemFeedbackUrl({id:'a/b?c',title:'x'.repeat(1000)}));
+assert.ok(special.searchParams.get('body').includes('/problem/a%2Fb%3Fc'));
+assert.ok(special.searchParams.get('title').length <= 150);
+assert.equal(links.PROJECT_REPOSITORY_URL,'https://github.com/Joao-Ray/math-atlas');
+console.log('Project links: safe public context, title bounds and private-field exclusion passed');

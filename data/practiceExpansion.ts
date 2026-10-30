@@ -1,0 +1,216 @@
+import type { Formula, Problem, Topic } from '@/types';
+
+export const practiceSets = [
+  { id: 'analysis', title: '数学分析', description: '定义证明、确界、数列、级数与函数列；按吉米多维奇式专题方向自编，不是原书原题。' },
+  { id: 'linear-algebra', title: '线性代数', description: '参数秩、齐次方程、独立性、正交化、正定与矩阵多项式。' },
+  { id: 'calculus', title: '高等数学', description: '积分型极限、分段连续、极值、积分技巧和一阶微分方程。' },
+] as const;
+const source = (set: NonNullable<Problem['practiceSet']>): NonNullable<Problem['source']> => ({
+  kind: 'original',
+  label: set === 'analysis' ? '自编数学分析专题 · 吉米多维奇式选题方向，非原书原题'
+    : '自编' + (set === 'linear-algebra' ? '线性代数' : '高等数学') + '专题练习 · 非教材原题',
+});
+
+type Lesson = Omit<Topic, 'formulaIds' | 'problemIds'> & { formula: Omit<Formula, 'id' | 'courseId' | 'topicId'> };
+const lessons: Lesson[] = [
+  {
+    id: 'sequence-limit-proof', courseId: 'mathematical-analysis', title: 'Epsilon–N Proofs', titleZh: '数列极限的 ε–N 证明',
+    summary: '把“足够接近”改写成可计算的下标界。', definition: 'aₙ→L 是指任意 ε>0，存在 N，使一切 n≥N 都满足 |aₙ−L|<ε。N 可依赖 ε，但不能依赖之后选择的 n。',
+    intuition: '先给误差容忍度，再选一个能保证所有后续项达标的起点。', prerequisites: ['limits', 'real-completeness'],
+    learningNotes: ['反求 N 时可先放缩，不必追求最小 N。', '最终证明要从 n≥N 正向验证不等式，并注意严格小于号。'],
+    formula: { title: 'Sequence limit definition', titleZh: '实数列收敛的定义', latex: 'a_n\\to L\\quad\\Longleftrightarrow\\quad\\forall\\varepsilon>0\\ \\exists N\\ \\forall n\\ge N:\\ |a_n-L|<\\varepsilon',
+      explanation: '误差由同一个下标界控制整个尾部。', conditions: 'aₙ 为实数列，L 为实数，N 为正整数。' },
+  },
+  {
+    id: 'series-convergence-tests', courseId: 'mathematical-analysis', title: 'Absolute & Conditional Convergence', titleZh: '绝对收敛与条件收敛',
+    summary: '先检查绝对值级数，再检查正负抵消是否产生收敛。', definition: 'Σaₙ 绝对收敛是指 Σ|aₙ| 收敛；原级数收敛但绝对值级数发散时，称为条件收敛。',
+    intuition: '绝对收敛不依赖正负抵消，条件收敛则依赖项之间的抵消结构。', prerequisites: ['sequences-series', 'cauchy-sequences'],
+    learningNotes: ['项趋于零只是必要条件，不能当作收敛判据。', '交错级数的常用判别要求幅值趋零且最终单调，不能只看到正负交错就使用。'],
+    formula: { title: 'Alternating-series test', titleZh: '莱布尼茨交错级数判别', latex: 'b_n\\ge0,\\quad b_n\\downarrow0\\quad\\Longrightarrow\\quad\\sum_{n=1}^{\\infty}(-1)^{n-1}b_n\\text{ converges}',
+      explanation: '相邻正负项的抵消配合幅值下降，使尾部可以统一控制。', conditions: 'bₙ 非负、趋于零且单调递减；最终满足这些条件也足够。' },
+  },
+  {
+    id: 'singular-integral-tests', courseId: 'mathematical-analysis', title: 'Endpoint Integral Tests', titleZh: '端点奇性与反常积分判别',
+    summary: '分开检查每一个坏端点，并用换元识别衰减速度。', definition: '端点存在无界被积函数时，以截断区间积分的有限极限定义反常积分；若多个端点有问题，必须分别收敛，不能依靠彼此抵消。',
+    intuition: '积分是否有限取决于端点附近面积的累积速度，而不只看函数是否趋于无穷。', prerequisites: ['improper-integrals', 'integration-techniques'],
+    learningNotes: ['0 附近的幂函数判别方向与无穷远处不同。', '换元 t=−ln x 能把 0 附近的对数奇性转为无穷远处的指数衰减问题。'],
+    formula: { title: 'Endpoint p-integral', titleZh: '0 附近的幂型积分', latex: '\\int_0^1x^{-p}\\,dx\\text{ converges}\\quad\\Longleftrightarrow\\quad p<1',
+      explanation: '当 p<1 时积分值为 1/(1−p)；p=1 出现对数发散。', conditions: 'p 为实数，使用通常反常积分而非主值。' },
+  },
+  {
+    id: 'nilpotent-matrix-series', courseId: 'linear-algebra', title: 'Nilpotent Matrix Polynomials', titleZh: '幂零矩阵与有限几何和',
+    summary: '高次幂变零后，矩阵几何级数会在有限项处精确终止。', definition: '若存在正整数 m 使 Nᵐ=0，则 N 称为幂零矩阵。几何和恒等式可给出 I−N 的精确逆矩阵。',
+    intuition: '每作用一次就把信息往前推一格，推到最后后所有信息都消失。', prerequisites: ['matrices', 'linear-systems'],
+    learningNotes: ['幂零不等于零矩阵，N 本身可以非零。', '验证逆矩阵时要实际相乘；这里有限和精确成立，不需要讨论收敛半径。'],
+    formula: { title: 'Finite geometric inverse', titleZh: '幂零矩阵的有限逆公式', latex: 'N^m=0\\quad\\Longrightarrow\\quad(I-N)^{-1}=I+N+\\cdots+N^{m-1}',
+      explanation: '左右相乘都得到 I−Nᵐ=I。', conditions: 'N 为方阵，m 为正整数，I 是同阶单位矩阵。' },
+  },
+  {
+    id: 'linear-first-order-odes', courseId: 'calculus', title: 'First-order Linear ODEs', titleZh: '一阶线性方程与积分因子',
+    summary: '把左侧凑成一个乘积的导数，再通过初值固定积分常数。', definition: '一阶线性方程 y′+P(x)y=Q(x) 在 P、Q 连续区间内，可乘以 μ(x)=exp(∫P) 化成 (μy)′=μQ。',
+    intuition: '选择一把随位置变化的权重，让原本分开的两项恰好合成一个导数。', prerequisites: ['ordinary-differential-equations', 'integration-techniques'],
+    learningNotes: ['积分因子可以乘任意非零常数，不影响所得解。', '求得解后必须同时核验微分方程与初始条件。'],
+    formula: { title: 'Integrating-factor formula', titleZh: '积分因子法', latex: '\\mu=e^{\\int P(x)dx},\\qquad y=\\frac1\\mu\\left(C+\\int\\mu Q\\,dx\\right)',
+      explanation: '不定积分中的常数可并入 C。', conditions: 'P、Q 在同一开区间连续；在该区间上求可微解。' },
+  },
+];
+
+const bank: Omit<Problem, 'source'>[] = [
+  {
+    id: 'practice-analysis-epsilon-n', courseId: 'mathematical-analysis', topicId: 'sequence-limit-proof', practiceSet: 'analysis',
+    title: 'ε–N 训练：有理数列的极限', difficulty: 2,
+    prompt: '直接按 ε–N 定义证明 aₙ=(2n+1)/(n+3)→2，给出一个可用的 N(ε)。', formulas: ['a_n=\\frac{2n+1}{n+3}'],
+    hints: ['先将 |aₙ−2| 化简为一个正分式。'],
+    steps: [{ title: '化简并放缩误差', body: '|aₙ−2|=5/(n+3)<5/n，因此只需 n>5/ε。' },
+      { title: '构造整数下标界', body: '取 N=⌊5/ε⌋+1，则所有 n≥N 都满足 n>5/ε，故误差严格小于 ε。', latex: 'N(\\varepsilon)=\\lfloor5/\\varepsilon\\rfloor+1' }], answer: '极限为 2；可取 N(ε)=⌊5/ε⌋+1。',
+  },
+  {
+    id: 'practice-analysis-monotone-recursion', courseId: 'mathematical-analysis', topicId: 'real-completeness', practiceSet: 'analysis',
+    title: '递推数列：先证收敛再解极限方程', difficulty: 3,
+    prompt: 'a₁=1，aₙ₊₁=√(2+aₙ)。证明数列收敛并求极限。', formulas: ['a_1=1,\\qquad a_{n+1}=\\sqrt{2+a_n}'],
+    hints: ['先证明 1≤aₙ<2，再验证下一项不小于当前项。'],
+    steps: [{ title: '归纳有界性', body: '若 1≤aₙ<2，则 1≤√(2+aₙ)<2；结合初值成立。' },
+      { title: '证明单调', body: '在 [1,2) 上，2+aₙ−aₙ²=(2−aₙ)(aₙ+1)>0，所以 aₙ₊₁>aₙ。' },
+      { title: '利用完备性并解方程', body: '单调有上界保证极限存在。L=√(2+L) 得 L=2 或 −1，但数列非负，只能取 2。' }], answer: '严格递增、有上界，极限为 2。',
+  },
+  {
+    id: 'practice-analysis-alternating-root', courseId: 'mathematical-analysis', topicId: 'series-convergence-tests', practiceSet: 'analysis',
+    title: '交错级数：区分绝对与条件收敛', difficulty: 3,
+    prompt: '判断下列级数的收敛性质，明确是否绝对收敛。', formulas: ['\\sum_{n=1}^{\\infty}\\frac{(-1)^{n-1}}{\\sqrt n}'],
+    hints: ['幅值单调趋零；绝对值级数是 p=1/2 的正项级数。'],
+    steps: [{ title: '证明原级数收敛', body: 'bₙ=1/√n 单调递减到 0，满足莱布尼茨判别法。' },
+      { title: '检查绝对值级数', body: 'Σ1/√n 的 p 指数为 1/2≤1，由 p 级数判别发散。因此原级数是条件收敛。' }], answer: '条件收敛，不绝对收敛。',
+  },
+  {
+    id: 'practice-analysis-moving-peak', courseId: 'mathematical-analysis', topicId: 'uniform-convergence', practiceSet: 'analysis',
+    title: '函数列：移动峰值阻止一致收敛', difficulty: 4,
+    prompt: '设 fₙ(x)=nxⁿ(1−x)，x∈[0,1]。求逐点极限，并判断是否一致收敛。', formulas: ['f_n(x)=nx^n(1-x)'],
+    hints: ['求最大值的位置，不能只观察固定的 x。'],
+    steps: [{ title: '求逐点极限', body: '端点处函数值为 0；固定 0<x<1 时指数衰减压过 n，因此极限恒为 0。' },
+      { title: '计算最大误差', body: '求导得 n x^(n−1)[n−(n+1)x]，最大点为 x=n/(n+1)。', latex: '\\sup_{[0,1]}f_n=\\left(\\frac n{n+1}\\right)^{n+1}' },
+      { title: '比较极限', body: '最大误差趋于 e⁻¹，而非 0，所以不一致收敛。' }], answer: '逐点收敛到 0，但不一致收敛；误差上确界趋于 1/e。',
+  },
+  {
+    id: 'practice-analysis-sup-inf', courseId: 'mathematical-analysis', topicId: 'real-completeness', practiceSet: 'analysis',
+    title: '确界：上确界不一定取到', difficulty: 2,
+    prompt: '求 S={n/(n+1):n=1,2,…} 的上、下确界，并判断是否存在最大值、最小值。', formulas: [],
+    hints: ['写成 1−1/(n+1)，分别看首项与尾部。'],
+    steps: [{ title: '下界与最小值', body: '数列随 n 增加而增加，首项为 1/2，因此下确界 1/2，且是最小值。' },
+      { title: '上界与逼近', body: '每一项都小于 1，且可以任意接近 1，因此上确界为 1。没有任何一项等于 1，所以没有最大值。' }], answer: 'sup S=1，无最大值；inf S=1/2，最小值为 1/2。',
+  },
+  {
+    id: 'practice-analysis-log-singularity', courseId: 'mathematical-analysis', topicId: 'singular-integral-tests', practiceSet: 'analysis',
+    title: '含参反常积分：对数奇性的收敛阈值', difficulty: 4,
+    prompt: '对实数 p，判断 I(p) 的敛散性，并在收敛时求值。', formulas: ['I(p)=\\int_0^1\\frac{|\\ln x|}{x^p}\\,dx'],
+    hints: ['令 t=−ln x，把 x=0 的端点变成无穷远。'],
+    steps: [{ title: '换元与方向', body: '0<x<1 时 |ln x|=−ln x。令 t=−ln x，反转积分上下限得到 ∫₀∞t e^(−(1−p)t)dt。' },
+      { title: '判断阈值', body: 'p<1 时指数衰减，积分有限；p=1 时变成 ∫₀∞t dt；p>1 时指数增长，均发散。' },
+      { title: '计算收敛值', body: '记 c=1−p>0，分部积分或令 u=ct，得到 Γ(2)/c²=1/c²。', latex: 'I(p)=\\frac1{(1-p)^2}\\quad(p<1)' }], answer: '当且仅当 p<1 收敛，值为 1/(1−p)²；p≥1 发散。',
+  },
+  {
+    id: 'practice-linear-parameter-rank', courseId: 'linear-algebra', topicId: 'linear-systems', practiceSet: 'linear-algebra',
+    title: '参数矩阵：秩如何随参数变化', difficulty: 3,
+    prompt: '讨论矩阵 A(a) 的秩。', formulas: ['A(a)=\\begin{pmatrix}1&1&1\\\\1&a&1\\\\1&1&a\\end{pmatrix}'],
+    hints: ['第二、三行分别减去第一行。'],
+    steps: [{ title: '保持秩的行变换', body: '得到行向量 (1,1,1)、(0,a−1,0)、(0,0,a−1)。' },
+      { title: '分类讨论', body: 'a≠1 时有三个主元，秩为 3；a=1 时三行相同但非零，秩为 1，不存在秩为 2 的情形。' }], answer: 'a≠1 时 rank A=3；a=1 时 rank A=1。',
+  },
+  {
+    id: 'practice-linear-nullspace', courseId: 'linear-algebra', topicId: 'linear-systems', practiceSet: 'linear-algebra',
+    title: '齐次方程：通解与基础解系', difficulty: 2,
+    prompt: '求 A x=0 的通解、基础解系与解空间维数。', formulas: ['A=\\begin{pmatrix}1&2&3\\\\2&4&6\\end{pmatrix}'],
+    hints: ['两行线性相关，只有一个独立约束。'],
+    steps: [{ title: '消去冗余方程', body: '唯一独立方程为 x₁+2x₂+3x₃=0。令 x₂=s、x₃=t，则 x₁=−2s−3t。' },
+      { title: '写出基础解系', body: '解为 s(−2,1,0)+t(−3,0,1)，两个向量独立；秩为 1，解空间维数为 3−1=2。' }], answer: '通解 s(−2,1,0)+t(−3,0,1)，基础解系为这两个向量，维数 2。',
+  },
+  {
+    id: 'practice-linear-independence', courseId: 'linear-algebra', topicId: 'vectors', practiceSet: 'linear-algebra',
+    title: '线性无关：不用只凭外观判断', difficulty: 2,
+    prompt: '判断 v₁=(1,1,0)、v₂=(1,0,1)、v₃=(0,1,1) 是否线性无关。', formulas: [],
+    hints: ['令它们的线性组合为零，逐坐标比较。'],
+    steps: [{ title: '建立系数方程', body: 'c₁+c₂=0、c₁+c₃=0、c₂+c₃=0。前两式给 c₂=c₃=−c₁。' },
+      { title: '推出唯一零组合', body: '第三式给 −2c₁=0，故三个系数全为零。因此线性无关，并构成 R³ 的一组基。' }], answer: '线性无关，是 R³ 的一组基。',
+  },
+  {
+    id: 'practice-linear-gram-schmidt', courseId: 'linear-algebra', topicId: 'orthogonality', practiceSet: 'linear-algebra',
+    title: '施密特正交化：投影减掉哪一部分', difficulty: 3,
+    prompt: '对 u₁=(1,1,0)、u₂=(1,0,1) 按给定顺序作 Gram–Schmidt 正交归一化。', formulas: [],
+    hints: ['先归一化 u₁，再从 u₂ 中减去沿 q₁ 的投影。'],
+    steps: [{ title: '求第一个单位向量', body: 'u₁ 模长为 √2，所以 q₁=(1,1,0)/√2。' },
+      { title: '减去投影', body: 'u₂·q₁=1/√2，故 v₂=u₂−(u₂·q₁)q₁=(1/2,−1/2,1)。' },
+      { title: '归一化并检查', body: 'v₂ 模长为 √6/2，故 q₂=(1,−1,2)/√6。两者单位长度且点积为零。' }], answer: 'q₁=(1,1,0)/√2，q₂=(1,−1,2)/√6。',
+  },
+  {
+    id: 'practice-linear-positive-parameter', courseId: 'linear-algebra', topicId: 'positive-definite', practiceSet: 'linear-algebra',
+    title: '正定参数：严格不等号不能丢', difficulty: 3,
+    prompt: '求实参数 a 的范围，使对称矩阵 A 正定，并判断边界情形。', formulas: ['A=\\begin{pmatrix}a&2\\\\2&3\\end{pmatrix}'],
+    hints: ['检查两个顺序主子式，不仅是行列式。'],
+    steps: [{ title: '正定判据', body: '要求 a>0 且 3a−4>0，合并为 a>4/3。' },
+      { title: '检查边界', body: 'a=4/3 时二次型为 (2x₁/√3+√3x₂)²，非负但存在非零零方向，故仅半正定。' }], answer: 'a>4/3 时正定；a=4/3 时半正定但不正定。',
+  },
+  {
+    id: 'practice-linear-nilpotent-inverse', courseId: 'linear-algebra', topicId: 'nilpotent-matrix-series', practiceSet: 'linear-algebra',
+    title: '幂零矩阵：三项即可求逆', difficulty: 3,
+    prompt: '对下列 N，求 (I−N)⁻¹，并用乘积验证。', formulas: ['N=\\begin{pmatrix}0&1&0\\\\0&0&1\\\\0&0&0\\end{pmatrix}'],
+    hints: ['计算 N²、N³，寻找终止的几何和。'],
+    steps: [{ title: '判断幂零阶', body: 'N² 只有 (1,3) 元素为 1，N³=0。' },
+      { title: '写出逆矩阵', body: '(I−N)(I+N+N²)=I−N³=I，反向相乘也相同。', latex: '(I-N)^{-1}=\\begin{pmatrix}1&1&1\\\\0&1&1\\\\0&0&1\\end{pmatrix}' }], answer: '(I−N)⁻¹=I+N+N²，即上三角元素全为 1、下三角为 0 的矩阵。',
+  },
+  {
+    id: 'practice-calculus-integral-limit', courseId: 'calculus', topicId: 'variable-limit-integrals', practiceSet: 'calculus',
+    title: '积分型极限：先积主项再比较', difficulty: 3,
+    prompt: '计算下列双侧极限，注意 x<0 时定积分仍有方向。', formulas: ['\\lim_{x\\to0}\\frac{\\int_0^x(t-\\sin t)\\,dt}{x^4}'],
+    hints: ['t−sin t 的首个非零项是三阶。'],
+    steps: [{ title: '保留局部主项', body: 't−sin t=t³/6+O(t⁵)。在 0 到 x 的有向区间积分，对两侧都得到 x⁴/24+O(x⁶)。' },
+      { title: '比较同阶系数', body: '除以 x⁴ 后余项为 O(x²) 趋零。', latex: '\\int_0^x(t-\\sin t)\\,dt=\\frac{x^4}{24}+O(x^6)' }], answer: '1/24。',
+  },
+  {
+    id: 'practice-calculus-removable-derivative', courseId: 'calculus', topicId: 'limits', practiceSet: 'calculus',
+    title: '补定义后是否可导', difficulty: 2,
+    prompt: '令 f(x)=sin x/x（x≠0），f(0)=a。求使 f 在 0 连续的 a，并求此时 f′(0)。', formulas: [],
+    hints: ['先用重要极限确定 a，再按导数定义求导。'],
+    steps: [{ title: '连续性确定补充值', body: 'sin x/x→1，因此且仅当 a=1 时在 0 连续。' },
+      { title: '用导数定义', body: '(f(h)−1)/h=(sin h−h)/h²=−h/6+O(h³)→0，因此 f′(0)=0。' }], answer: 'a=1，且 f′(0)=0。',
+  },
+  {
+    id: 'practice-calculus-x-power-x', courseId: 'calculus', topicId: 'derivatives', practiceSet: 'calculus',
+    title: '幂指函数的全局最小值', difficulty: 3,
+    prompt: '求 f(x)=xˣ（x>0）的单调区间与全局最小值。', formulas: ['f(x)=x^x,\\quad x>0'],
+    hints: ['先取对数，得到导数因子 ln x+1。'],
+    steps: [{ title: '对数求导', body: 'f′(x)=xˣ(ln x+1)，因为 xˣ>0，符号由 ln x+1 决定。' },
+      { title: '分析导数符号', body: '在 (0,e⁻¹) 上递减，在 (e⁻¹,∞) 上递增，故临界点给全局最小值。' },
+      { title: '代入临界点', body: 'ln f(e⁻¹)=−1/e，故最小值为 e^(−1/e)。' }], answer: '在 e⁻¹ 左侧递减、右侧递增；全局最小值 e^(−1/e)。',
+  },
+  {
+    id: 'practice-calculus-arctan-integral', courseId: 'calculus', topicId: 'integration-techniques', practiceSet: 'calculus',
+    title: '反三角函数积分：分部积分', difficulty: 2,
+    prompt: '计算下列定积分。', formulas: ['\\int_0^1\\arctan x\\,dx'],
+    hints: ['让 arctan x 求导，让 1 积分。'],
+    steps: [{ title: '分部积分', body: '取 u=arctan x、dv=dx，得边界项 x arctan x 减去 ∫x/(1+x²)。' },
+      { title: '换元完成计算', body: '边界项为 π/4，余下积分为 (1/2)ln2。', latex: '\\int_0^1\\arctan x\\,dx=\\frac\\pi4-\\frac12\\ln2' }], answer: 'π/4−(ln2)/2。',
+  },
+  {
+    id: 'practice-calculus-disk-moment', courseId: 'calculus', topicId: 'polar-area', practiceSet: 'calculus',
+    title: '圆盘二重积分：不要漏掉雅可比', difficulty: 3,
+    prompt: 'D 为单位圆盘，计算 ∫∫_D(x²+y²)dxdy。', formulas: ['D=\\{(x,y):x^2+y^2\\le1\\}'],
+    hints: ['x²+y²=r²，面积元还会额外提供一个 r。'],
+    steps: [{ title: '写出极坐标区域', body: '0≤r≤1、0≤θ≤2π，被积函数为 r²，面积元为 r drdθ。' },
+      { title: '分离变量积分', body: '2π∫₀¹r³dr=2π·1/4。', latex: '\\iint_D(x^2+y^2)\\,dx\\,dy=\\frac\\pi2' }], answer: 'π/2。',
+  },
+  {
+    id: 'practice-calculus-linear-ode', courseId: 'calculus', topicId: 'linear-first-order-odes', practiceSet: 'calculus',
+    title: '带初值的一阶非齐次线性方程', difficulty: 3,
+    prompt: '求初值问题 y′+2y=e^(−x)、y(0)=0 的解。', formulas: ['y^{\\prime}+2y=e^{-x},\\quad y(0)=0'],
+    hints: ['乘积分因子 e^(2x)。'],
+    steps: [{ title: '凑成乘积导数', body: '两边乘 e^(2x)，得到 (e^(2x)y)′=eˣ。' },
+      { title: '积分并代入初值', body: 'e^(2x)y=eˣ+C，故 y=e^(−x)+Ce^(−2x)。由 y(0)=0 得 C=−1。' },
+      { title: '回代核验', body: '直接求导得到 y′+2y=e^(−x)，且 y(0)=0，解在整个实轴成立。' }], answer: 'y(x)=e^(−x)−e^(−2x)。',
+  },
+];
+export const practiceProblems: Problem[] = bank.map((problem) => ({ ...problem, source: source(problem.practiceSet!) }));
+export const practiceTopics: Topic[] = lessons.map(({ formula, ...topic }) => ({
+  ...topic, formulaIds: [topic.id + '-formula'], problemIds: practiceProblems.filter((problem) => problem.topicId === topic.id).map((problem) => problem.id),
+}));
+export const practiceFormulas: Formula[] = lessons.map((lesson) => ({
+  ...lesson.formula, id: lesson.id + '-formula', courseId: lesson.courseId, topicId: lesson.id,
+}));

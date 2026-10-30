@@ -63,8 +63,16 @@ function RootLayoutNav() {
           <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
           <Stack.Screen name="topic/[slug]" options={{ title: '知识点' }} />
           <Stack.Screen name="problem/[id]" options={{ title: '例题解析' }} />
+          <Stack.Screen name="daily-limits" options={{ title: '每日极限练习' }} />
+          <Stack.Screen name="limit-review" options={{ title: '极限题库与复习' }} />
+          <Stack.Screen name="limit-methods" options={{ title: '极限方法小课堂' }} />
+          <Stack.Screen name="study-calendar" options={{ title: '学习日历' }} />
+          <Stack.Screen name="study-backup" options={{ title: '学习记录备份' }} />
+          <Stack.Screen name="textbook-guide" options={{ title: '教材导学' }} />
+          <Stack.Screen name="course-roadmap" options={{ title: '课程拓展路线' }} />
           <Stack.Screen name="saved" options={{ title: '我的学习' }} />
           <Stack.Screen name="settings" options={{ title: '设置与关于' }} />
+          <Stack.Screen name="open-source" options={{ title: '源码与参与贡献' }} />
           <Stack.Screen name="privacy" options={{ title: '隐私政策' }} />
         </Stack>
       </ThemeProvider>

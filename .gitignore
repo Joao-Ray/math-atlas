@@ -5,6 +5,7 @@ node_modules/
 .expo/
 dist/
 web-build/
+/tmp/
 expo-env.d.ts
 
 # Native
@@ -30,7 +31,20 @@ pnpm-debug.*
 *.pem
 
 # local env files
+.env
+.env.*
+!.env.example
 .env*.local
+
+# local plans, review artifacts and personal data
+.planning/
+.superpowers/
+task_plan.md
+findings.md
+progress.md
+*.pdf
+*study-backup*.json
+*acceptance*.json
 
 # TypeScript
 *.tsbuildinfo

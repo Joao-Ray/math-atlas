@@ -1,0 +1,38 @@
+{
+  "name": "lemivanta-weapp",
+  "version": "0.17.0",
+  "private": true,
+  "description": "Lemivanta WeChat client, sharing MathAtlas curriculum without changing the Expo app.",
+  "scripts": {
+    "prepare:assets": "node scripts/prepare-assets.cjs",
+    "typecheck": "tsc --noEmit",
+    "test": "node scripts/validate-client.cjs",
+    "dev:weapp": "npm run prepare:assets && taro build --type weapp --watch",
+    "build:weapp": "npm run prepare:assets && node scripts/validate-content-codec.cjs && taro build --type weapp && node scripts/validate-package.cjs",
+    "test:codec": "node scripts/validate-content-codec.cjs"
+  },
+  "dependencies": {
+    "@tarojs/components": "4.2.1",
+    "@tarojs/react": "4.2.1",
+    "@tarojs/runtime": "4.2.1",
+    "@tarojs/shared": "4.2.1",
+    "@tarojs/taro": "4.2.1",
+    "fflate": "0.8.3",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@babel/core": "^7.26.0",
+    "@babel/preset-react": "^7.26.0",
+    "@tarojs/cli": "4.2.1",
+    "@tarojs/plugin-framework-react": "4.2.1",
+    "@tarojs/plugin-platform-weapp": "4.2.1",
+    "@tarojs/webpack5-runner": "4.2.1",
+    "@types/node": "^22.0.0",
+    "@types/react": "^18.3.0",
+    "babel-preset-taro": "4.2.1",
+    "sharp": "^0.34.0",
+    "typescript": "~5.9.3",
+    "webpack": "5.91.0"
+  }
+}

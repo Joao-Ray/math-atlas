@@ -1,0 +1,18 @@
+{
+  "description": "Lemivanta 微信小程序本地预览版；非 Expo 项目，非已发布版本",
+  "projectname": "Lemivanta",
+  "appid": "wx44f87bace7f3937f",
+  "miniprogramRoot": "dist/",
+  "compileType": "miniprogram",
+  "setting": {
+    "es6": false,
+    "postcss": false,
+    "minified": false,
+    "enhance": false,
+    "urlCheck": true,
+    "uploadWithSourceMap": false,
+    "packNpmManually": false
+  },
+  "condition": {},
+  "packOptions": { "ignore": [], "include": [] }
+}

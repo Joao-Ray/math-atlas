@@ -2,8 +2,8 @@
   "name": "math-atlas",
   "main": "expo-router/entry",
   "description": "A local-first university mathematics learning MVP built with Expo and TypeScript.",
-  "license": "0BSD",
-  "version": "0.1.0",
+  "license": "MIT",
+  "version": "1.23.0",
   "dependencies": {
     "@react-native-async-storage/async-storage": "2.2.0",
     "expo": "~57.0.24",
@@ -15,6 +15,7 @@
     "expo-status-bar": "~57.0.1",
     "expo-symbols": "~57.0.3",
     "expo-web-browser": "~57.0.3",
+    "fast-xml-parser": "^5.11.2",
     "react": "19.2.3",
     "react-dom": "19.2.3",
     "react-native": "0.86.3",
@@ -36,6 +37,19 @@
     "ios": "expo start --ios",
     "web": "expo start --web",
     "typecheck": "tsc --noEmit",
-    "validate:content": "node scripts/validate-content.cjs"
+    "validate:content": "node scripts/validate-content.cjs",
+    "validate:study": "node scripts/validate-study.cjs",
+    "validate:methods": "node scripts/validate-methods.cjs",
+    "validate:papers": "node scripts/validate-papers.cjs",
+    "validate:curriculum": "node scripts/validate-curriculum.cjs",
+    "validate:textbooks": "node scripts/validate-textbooks.cjs",
+    "validate:roadmap": "node scripts/validate-roadmap.cjs",
+    "validate:expansion": "node scripts/validate-ten-versions.cjs && node scripts/validate-ten-calculus.cjs && node scripts/validate-ten-a.cjs && node scripts/validate-ten-b.cjs && node scripts/validate-ten-c.cjs",
+    "validate:expansion:v112": "node scripts/validate-expansion-v112.cjs",
+    "validate:expansion:v111": "node scripts/validate-expansion-v111.cjs",
+    "validate:expansion:v110": "node scripts/validate-expansion-v110.cjs",
+    "validate:expansion:v19": "node scripts/validate-expansion-v19.cjs",
+    "test": "node scripts/validate-all.cjs",
+    "validate:project": "node scripts/validate-project-links.cjs"
   }
 }

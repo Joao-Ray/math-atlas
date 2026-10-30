@@ -43,6 +43,7 @@ export default function TopicDetailScreen() {
         </Pressable>
       </View>
 
+      <Pressable accessibilityRole="link" style={styles.methodLink} onPress={() => router.push({ pathname: '/course-roadmap', params: { course: topic.courseId } })}><Text style={styles.paperAction}>查看本课程路线 →</Text></Pressable>
       <SectionTitle>一句话理解</SectionTitle>
       <View style={styles.intuitionCard}>
         <Text style={styles.quote}>“</Text>
@@ -51,6 +52,15 @@ export default function TopicDetailScreen() {
 
       <SectionTitle>定义</SectionTitle>
       <View style={styles.textCard}><Text style={styles.body}>{topic.definition}</Text></View>
+      {topic.sourceNote ? <View style={styles.textCard}>
+        <Text style={styles.conditionsTitle}>内容说明</Text>
+        <Text style={styles.body}>{topic.sourceNote}</Text>
+      </View> : null}
+      {topic.id === 'limits' || topic.id === 'taylor-series' ? <Pressable accessibilityRole="button"
+        accessibilityLabel="从知识点进入极限方法课堂" style={styles.methodLink}
+        onPress={() => router.push({ pathname: '/limit-methods', params: topic.id === 'taylor-series' ? { method: 'taylor' } : {} })}>
+        <Text style={styles.paperAction}>{topic.id === 'taylor-series' ? '泰勒展开：条件、误区与概念自测 →' : '极限方法小课堂：从理解到定向练题 →'}</Text>
+      </Pressable> : null}
 
       {topic.learningNotes?.length ? (
         <>
@@ -123,7 +133,7 @@ export default function TopicDetailScreen() {
             <Pressable
               key={paper.id}
               accessibilityRole="button"
-              onPress={() => router.push({ pathname: '/(tabs)/papers', params: { topic: topic.id, paper: paper.id } })}
+              onPress={() => router.push({ pathname: '/(tabs)/papers', params: { topic: topic.id, paper: paper.id, source: 'curated' } })}
               style={({ pressed }) => [styles.textCard, styles.paperCard, pressed && styles.pressed]}>
               <Text style={styles.paperTitle}>{paper.title}</Text>
               <Text style={styles.formulaMeta}>{paper.source} · {paper.publishedAt}</Text>
@@ -137,6 +147,7 @@ export default function TopicDetailScreen() {
 }
 
 const styles = StyleSheet.create({
+  methodLink: { backgroundColor: palette.greenSoft, padding: spacing.md, borderRadius: radii.md, marginTop: spacing.md },
   notFound: { color: palette.ink, fontSize: 18, paddingTop: 80, textAlign: 'center' },
   hero: { paddingTop: spacing.lg, alignItems: 'center' },
   icon: { width: 58, height: 58, borderRadius: 19, alignItems: 'center', justifyContent: 'center', marginBottom: spacing.md },

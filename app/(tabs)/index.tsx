@@ -6,12 +6,19 @@ import { MathFormula } from '@/components/MathFormula';
 import { Eyebrow, PageTitle, SectionTitle } from '@/components/Typography';
 import { palette, radii, spacing } from '@/constants/Theme';
 import { useStudy } from '@/contexts/StudyContext';
-import { courseById, papers, problems, topicById } from '@/data/mockData';
+import { courseById, papers, problems, topicById, topics } from '@/data/mockData';
+import { advancedCourses } from '@/data/advancedCurriculum';
+import { getDailyLimitSummary } from '@/data/dailyLimits';
+import { useLocalDay } from '@/hooks/useLocalDay';
 
 const featuredPapers = [...papers].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt)).slice(0, 3);
+const competitionCount = problems.filter((problem) => problem.source?.kind === 'competition-style' || problem.source?.kind === 'past-paper').length;
+const practiceCount = problems.filter((problem) => !!problem.practiceSet).length;
 
 export default function HomeScreen() {
-  const { completedProblems, favoriteFormulas, favoriteTopics } = useStudy();
+  const { completedProblems, favoriteFormulas, favoriteTopics, dailyLimitRecords, hydrated } = useStudy();
+  const localDay = useLocalDay();
+  const limitSummary = getDailyLimitSummary(dailyLimitRecords, localDay);
   const dailyProblem = problems[Math.floor(Date.now() / 86400000) % problems.length];
   const nextProblem = problems.find((problem) => !completedProblems.includes(problem.id)) ?? problems[0];
   const nextTopic = topicById(nextProblem.topicId)!;
@@ -23,7 +30,7 @@ export default function HomeScreen() {
     <AppScreen>
       <View style={styles.brandRow}>
         <View style={styles.logo}><Text style={styles.logoText}>M</Text></View>
-        <Text style={styles.brand}>MathAtlas</Text>
+        <Text style={styles.brand}>Lemivanta</Text>
         <Pressable accessibilityLabel="我的学习" onPress={() => router.push('/saved')} style={styles.headerButton}>
           <Text style={styles.headerButtonText}>☆</Text>
         </Pressable>
@@ -32,7 +39,7 @@ export default function HomeScreen() {
         </Pressable>
       </View>
 
-      <PageTitle subtitle="把知识点、公式、例题与前沿论文连成一张图。">{greeting}，今天学一点什么？</PageTitle>
+      <PageTitle subtitle={`${topics.length} 个知识点 · ${problems.length} 道解析题 · 每天练一点。`}>{greeting}，今天学一点什么？</PageTitle>
 
       <Pressable onPress={() => router.push('/saved')} style={styles.overviewCard}>
         <View style={styles.metric}>
@@ -60,6 +67,43 @@ export default function HomeScreen() {
         </View>
       </Pressable>
 
+      <SectionTitle action={<Pressable accessibilityRole="button" accessibilityLabel="首页打开学习日历"
+        onPress={() => router.push('/study-calendar')}><Text style={styles.textLink}>学习日历 →</Text></Pressable>}>每日极限练习</SectionTitle>
+      <Pressable accessibilityRole="button" accessibilityLabel="开始每日极限练习"
+        onPress={() => router.push('/daily-limits')}
+        style={({ pressed }) => [styles.limitCard, pressed && styles.pressed]}>
+        <Text style={styles.cardTitle}>每天 3 题，先自己做</Text>
+        <Text style={styles.limitDescription}>基础巩固 · 方法练习 · 进阶挑战（可选）</Text>
+        <Text style={styles.limitDescription}>{localDay} · {hydrated ? `今日已自评 ${limitSummary.assessed}/3` : '正在读取记录…'}</Text>
+        <Text style={styles.limitAction}>开始练习 →</Text>
+      </Pressable>
+
+      <Pressable accessibilityRole="button" accessibilityLabel="首页打开极限方法小课堂"
+        onPress={() => router.push('/limit-methods')} style={styles.methodCard}>
+        <Text style={styles.textLink}>极限方法小课堂 →</Text>
+        <Text style={styles.limitDescription}>9 组方法讲解 · 18 道概念自测 · 按方法定向练题</Text>
+      </Pressable>
+      <SectionTitle>课程拓展与竞赛</SectionTitle>
+      <Pressable accessibilityRole="button" onPress={() => router.push('/course-roadmap')} style={styles.methodCard}><Text style={styles.textLink}>每门 70 点 · 查看课程拓展路线 →</Text><Text style={styles.limitDescription}>已完善 {topics.length}/700 点 · 待补目录不计入知识库</Text></Pressable>
+      <Pressable accessibilityRole="button" onPress={() => router.push('/textbook-guide')} style={styles.methodCard}><Text style={styles.textLink}>教材导学 · 高数、概率与随机过程 →</Text><Text style={styles.limitDescription}>4 条阅读路线 · 12 个新专题 · 24 道自编配套题</Text></Pressable>
+      <Pressable accessibilityRole="link" accessibilityLabel="打开数学分析线性代数与高等数学专题练习"
+        onPress={() => router.push({ pathname: '/problems', params: { track: 'practice' } })} style={styles.methodCard}>
+        <Text style={styles.textLink}>数学分析、线代、高数 · {practiceCount} 道专题练习 →</Text>
+        <Text style={styles.limitDescription}>定义证明、参数计算与综合方法 · 自编同类题，非原书原题</Text>
+      </Pressable>
+      <View style={styles.courseGrid}>
+        {[courseById('calculus')!, ...advancedCourses].map((course) => <Pressable key={course.id}
+          accessibilityRole="link" accessibilityLabel={'进入' + course.titleZh + '知识板块'}
+          onPress={() => router.push({ pathname: '/topics', params: { course: course.id } })} style={styles.courseTile}>
+          <Text style={[styles.courseTileTitle, { color: course.accent }]}>{course.titleZh} →</Text>
+          <Text style={styles.cardMeta}>{topics.filter((topic) => topic.courseId === course.id).length} 个知识点</Text>
+        </Pressable>)}
+      </View>
+      <Pressable accessibilityRole="link" accessibilityLabel="进入大学生数学竞赛训练"
+        onPress={() => router.push({ pathname: '/problems', params: { track: 'competition' } })} style={styles.methodCard}>
+        <Text style={styles.textLink}>竞赛题库 · {competitionCount} 道题 →</Text>
+        <Text style={styles.limitDescription}>真题与自编训练统一浏览 · 来源在详情说明 · 答案默认隐藏</Text>
+      </Pressable>
       <SectionTitle>今日公式</SectionTitle>
       <View style={styles.surfaceCard}>
         <Text style={styles.cardTitle}>方差恒等式</Text>
@@ -89,7 +133,7 @@ export default function HomeScreen() {
       </Pressable>
 
       <SectionTitle
-        action={<Pressable onPress={() => router.push('/papers')}><Text style={styles.link}>全部论文</Text></Pressable>}>
+        action={<Pressable onPress={() => router.push({ pathname: '/papers', params: { source: 'online' } })}><Text style={styles.link}>在线更新</Text></Pressable>}>
         论文探索
       </SectionTitle>
       <View style={styles.paperList}>
@@ -98,7 +142,7 @@ export default function HomeScreen() {
             key={paper.id}
             accessibilityRole="button"
             accessibilityLabel={`阅读 ${paper.title}`}
-            onPress={() => router.push({ pathname: '/(tabs)/papers', params: { paper: paper.id } })}
+            onPress={() => router.push({ pathname: '/(tabs)/papers', params: { paper: paper.id, source: 'curated' } })}
             style={({ pressed }) => [styles.paperRow, index === featuredPapers.length - 1 && styles.lastRow, pressed && styles.pressed]}>
             <View style={styles.paperNumber}><Text style={styles.paperNumberText}>0{index + 1}</Text></View>
             <View style={styles.paperContent}>
@@ -108,12 +152,17 @@ export default function HomeScreen() {
           </Pressable>
         ))}
       </View>
-      <Text style={styles.dataNote}>论文条目已核对 arXiv 来源；后续可接入 API 自动更新。</Text>
+      <Text style={styles.dataNote}>这里展示本地精选；进入论文页的“在线更新”可获取 arXiv 最新元数据。</Text>
     </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  courseGrid: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm },
+  courseTile: { flexGrow: 1, flexBasis: '45%', borderWidth: 1, borderColor: palette.line, borderRadius: radii.md, backgroundColor: palette.surface, padding: spacing.md },
+  courseTileTitle: { fontSize: 15, lineHeight: 23, fontWeight: '800' },
+  methodCard: { backgroundColor: palette.surface, borderWidth: 1, borderColor: palette.line, borderRadius: radii.md, padding: spacing.md, marginTop: spacing.sm },
+  textLink: { color: palette.green, fontWeight: '700', fontSize: 13 },
   brandRow: { flexDirection: 'row', alignItems: 'center', paddingTop: spacing.md },
   logo: { width: 32, height: 32, borderRadius: 10, backgroundColor: palette.green, alignItems: 'center', justifyContent: 'center' },
   logoText: { color: palette.white, fontWeight: '900', fontSize: 16 },
@@ -136,6 +185,9 @@ const styles = StyleSheet.create({
   progressLabel: { color: '#C8DDD1', fontSize: 12 },
   go: { color: palette.white, fontWeight: '800', fontSize: 13 },
   surfaceCard: { backgroundColor: palette.surface, borderColor: palette.line, borderWidth: 1, borderRadius: radii.lg, padding: spacing.lg },
+  limitCard: { backgroundColor: palette.greenSoft, borderColor: palette.line, borderWidth: 1, borderRadius: radii.lg, padding: spacing.lg },
+  limitDescription: { color: palette.muted, fontSize: 13, lineHeight: 21, marginTop: 7 },
+  limitAction: { color: palette.green, fontSize: 14, fontWeight: '800', marginTop: 14 },
   cardTitle: { color: palette.ink, fontSize: 20, fontWeight: '800' },
   cardMeta: { color: palette.muted, fontSize: 12, marginTop: 3 },
   cardBody: { color: palette.muted, fontSize: 14, textAlign: 'center' },

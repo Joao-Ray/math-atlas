@@ -8,6 +8,10 @@
       ]
     }
   },
+  "exclude": [
+    "mini-program/**",
+    "web-host/**"
+  ],
   "include": [
     "**/*.ts",
     "**/*.tsx",

@@ -12,6 +12,7 @@ export function SearchField({ value, onChangeText, placeholder }: Props) {
   return (
     <View style={styles.container}>
       <TextInput
+        accessibilityLabel={placeholder}
         value={value}
         onChangeText={onChangeText}
         placeholder={`⌕  ${placeholder}`}

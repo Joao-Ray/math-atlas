@@ -1,6 +1,6 @@
-import { router, Stack, useLocalSearchParams } from 'expo-router';
+import { Link, router, Stack, useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { AppScreen } from '@/components/AppScreen';
 import { MathFormula } from '@/components/MathFormula';
@@ -8,6 +8,7 @@ import { SectionTitle } from '@/components/Typography';
 import { palette, radii, spacing } from '@/constants/Theme';
 import { useStudy } from '@/contexts/StudyContext';
 import { courseById, problemById, topicById } from '@/data/mockData';
+import { problemFeedbackUrl } from '@/data/projectLinks';
 
 export default function ProblemDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
@@ -15,6 +16,7 @@ export default function ProblemDetailScreen() {
   const [showSolution, setShowSolution] = useState(false);
   const problem = problemById(id);
   const { completedProblems, toggleProblemComplete } = useStudy();
+  useEffect(() => { setShowHints(false); setShowSolution(false); }, [id]);
 
   if (!problem) {
     return <AppScreen><Text style={styles.notFound}>未找到这道例题。</Text></AppScreen>;
@@ -36,6 +38,12 @@ export default function ProblemDetailScreen() {
         </Pressable>
         <Text style={styles.title}>{problem.title}</Text>
         <Text style={styles.difficulty}>{'★'.repeat(problem.difficulty)}{'☆'.repeat(5 - problem.difficulty)}</Text>
+        {problem.source ? <Text style={styles.source}>{problem.source.label}</Text> : null}
+        {problem.source?.kind === 'past-paper' ? <View style={styles.provenance}>
+          <Text style={styles.provenanceTitle}>{problem.source.documentTitle} · {problem.source.exam}</Text>
+          <Text style={styles.source}>{problem.source.paper} · {problem.source.question}</Text>
+          <Text style={styles.source}>{problem.source.verificationNote}</Text>
+        </View> : null}
       </View>
 
       <SectionTitle>题目</SectionTitle>
@@ -61,6 +69,10 @@ export default function ProblemDetailScreen() {
       ) : (
         <>
           <SectionTitle>详细解析</SectionTitle>
+          {problem.source?.kind === 'past-paper' && problem.source.editorialNote ? <View style={styles.provenance}>
+            <Text style={styles.provenanceTitle}>解析勘误与补充</Text>
+            <Text style={styles.source}>{problem.source.editorialNote}</Text>
+          </View> : null}
           <View style={styles.timeline}>
             {problem.steps.map((step, index) => (
               <View key={step.title} style={styles.step}>
@@ -92,12 +104,21 @@ export default function ProblemDetailScreen() {
           </Pressable>
         </>
       )}
+      <View style={styles.feedback}>
+        <Link href={problemFeedbackUrl(problem)} target="_blank" rel="noopener noreferrer" accessibilityRole="link" style={styles.feedbackLink}>反馈这道题 ↗</Link>
+        <Text style={styles.source}>在 GitHub 核对后自行提交，仅预填公开题号与链接，不附带个人学习记录。</Text>
+      </View>
     </AppScreen>
   );
 }
 
 const styles = StyleSheet.create({
+  feedback: { borderTopWidth:1, borderTopColor:palette.line, marginTop:spacing.lg, paddingTop:spacing.sm },
+  feedbackLink: { color:palette.green, fontSize:14, fontWeight:'700', paddingVertical:14 },
+  provenance: { backgroundColor: palette.greenSoft, padding: spacing.md, borderRadius: radii.md, marginVertical: spacing.sm },
+  provenanceTitle: { color: palette.green, fontSize: 13, fontWeight: '800', lineHeight: 22 },
   notFound: { color: palette.ink, fontSize: 18, paddingTop: 80, textAlign: 'center' },
+  source: { color: palette.muted, fontSize: 12, lineHeight: 20, marginTop: spacing.sm },
   hero: { paddingTop: spacing.lg },
   metaRow: { flexDirection: 'row', alignItems: 'center' },
   dot: { width: 9, height: 9, borderRadius: 5, marginRight: 7 },

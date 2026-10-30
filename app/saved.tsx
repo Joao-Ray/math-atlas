@@ -19,6 +19,10 @@ export default function SavedScreen() {
   return (
     <AppScreen>
       <PageTitle subtitle="收藏和学习状态只保存在这台设备上。">我的学习</PageTitle>
+      <View style={styles.actions}>
+        <Pressable accessibilityRole="button" accessibilityLabel="我的学习打开日历" onPress={() => router.push('/study-calendar')} style={styles.quickLink}><Text style={styles.linkText}>学习日历 →</Text></Pressable>
+        <Pressable accessibilityRole="button" accessibilityLabel="我的学习打开备份" onPress={() => router.push('/study-backup')} style={styles.quickLink}><Text style={styles.linkText}>备份与恢复 →</Text></Pressable>
+      </View>
       {isEmpty ? <EmptyState label="还没有收藏或完成记录，先去探索一个知识点吧" /> : null}
 
       {savedTopics.length ? (
@@ -56,6 +60,9 @@ export default function SavedScreen() {
 }
 
 const styles = StyleSheet.create({
+  actions: { flexDirection: 'row', flexWrap: 'wrap', gap: 10, marginBottom: spacing.md },
+  quickLink: { borderRadius: radii.md, borderWidth: 1, borderColor: palette.green, padding: 13 },
+  linkText: { color: palette.green, fontSize: 13, fontWeight: '700' },
   list: { borderRadius: radii.md, borderWidth: 1, borderColor: palette.line, overflow: 'hidden' },
   formulaCard: { backgroundColor: palette.surface, borderWidth: 1, borderColor: palette.line, borderRadius: radii.md, padding: spacing.md, marginBottom: spacing.sm },
   formulaTitle: { color: palette.ink, fontSize: 16, fontWeight: '800' },

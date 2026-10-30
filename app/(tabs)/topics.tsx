@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 
 import { AppScreen } from '@/components/AppScreen';
@@ -7,11 +8,12 @@ import { SearchField } from '@/components/SearchField';
 import { PageTitle } from '@/components/Typography';
 import { palette, radii, spacing } from '@/constants/Theme';
 import { courses, topics } from '@/data/mockData';
-import { CourseId } from '@/types';
+import { normalizeCourseSelection } from '@/data/problemFilters';
 
 export default function TopicsScreen() {
   const [query, setQuery] = useState('');
-  const [selected, setSelected] = useState<CourseId | 'all'>('all');
+  const params = useLocalSearchParams<{ course?: string }>();
+  const selected = normalizeCourseSelection(params.course, courses);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -24,14 +26,19 @@ export default function TopicsScreen() {
 
   return (
     <AppScreen>
-      <PageTitle subtitle="第一版覆盖 5 门大学数学核心课程。">知识地图</PageTitle>
+      <PageTitle subtitle={courses.length + ' 门课程 · ' + topics.length + ' 个知识点，从计算走向证明。'}>知识地图</PageTitle>
+      <Pressable accessibilityRole="button" onPress={() => router.push({ pathname: '/course-roadmap', params: { course: selected } })} style={styles.guide}><Text style={styles.guideTitle}>每门 70 点 · 课程拓展路线 →</Text><Text style={styles.courseDescription}>查看分章目录与已完善进度。待补充目录不计入正式知识库。</Text></Pressable>
+      <Pressable accessibilityRole="button" onPress={() => router.push('/textbook-guide')} style={styles.guide}><Text style={styles.guideTitle}>教材导学 · 4 条路线 →</Text><Text style={styles.courseDescription}>新增高数、概率与随机过程 12 个专题、24 道自编题，按已核对章节建立学习顺序。</Text></Pressable>
+      <Text style={styles.courseDescription}>新增高等代数、复变函数、解析几何、测度论与数学分析入门精选。每个新知识点配有适用条件、易错点和例题；这些内容是学习起点，不代替完整教材。</Text>
       <SearchField value={query} onChangeText={setQuery} placeholder="搜索知识点（中英文）" />
       <View style={styles.filters}>
-        <Pressable onPress={() => setSelected('all')} style={[styles.chip, selected === 'all' && styles.chipActive]}>
+        <Pressable accessibilityRole="button" accessibilityState={{ selected: selected === 'all' }}
+          onPress={() => router.setParams({ course: 'all' })} style={[styles.chip, selected === 'all' && styles.chipActive]}>
           <Text style={[styles.chipText, selected === 'all' && styles.chipTextActive]}>全部</Text>
         </Pressable>
         {courses.map((course) => (
-          <Pressable key={course.id} onPress={() => setSelected(course.id)} style={[styles.chip, selected === course.id && styles.chipActive]}>
+          <Pressable key={course.id} accessibilityRole="button" accessibilityState={{ selected: selected === course.id }}
+            onPress={() => router.setParams({ course: course.id })} style={[styles.chip, selected === course.id && styles.chipActive]}>
             <Text style={[styles.chipText, selected === course.id && styles.chipTextActive]}>{course.titleZh}</Text>
           </Pressable>
         ))}
@@ -67,6 +74,8 @@ export default function TopicsScreen() {
 }
 
 const styles = StyleSheet.create({
+  guide: { backgroundColor: palette.greenSoft, padding: spacing.md, borderRadius: radii.md, marginBottom: spacing.md },
+  guideTitle: { color: palette.green, fontWeight: '800', fontSize: 16 },
   filters: { flexDirection: 'row', flexWrap: 'wrap', gap: 8, marginBottom: spacing.sm },
   chip: { borderRadius: radii.pill, borderWidth: 1, borderColor: palette.line, backgroundColor: palette.surface, paddingHorizontal: 12, paddingVertical: 8 },
   chipActive: { backgroundColor: palette.green, borderColor: palette.green },

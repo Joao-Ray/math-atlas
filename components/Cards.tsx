@@ -32,6 +32,9 @@ export function ProblemCard({ problem, completed = false }: { problem: Problem; 
         <Text style={styles.difficulty}>{'★'.repeat(problem.difficulty)}{'☆'.repeat(5 - problem.difficulty)}</Text>
       </View>
       <Text style={styles.problemTitle}>{problem.title}</Text>
+      {problem.source?.kind === 'competition-style' || problem.source?.kind === 'past-paper'
+        ? <Text style={styles.completed}>竞赛题库</Text> : null}
+      {problem.practiceSet ? <Text style={styles.completed}>自编专题练习 · 非原书原题</Text> : null}
       <Text style={styles.problemPrompt} numberOfLines={2}>{problem.prompt}</Text>
       {completed ? <Text style={styles.completed}>✓ 已完成</Text> : null}
       <Text style={styles.openText}>查看详细解析  →</Text>
