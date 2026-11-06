@@ -12,6 +12,7 @@ import { courses, problems, topics } from '@/data/mockData';
 import { competitionResource } from '@/data/advancedCurriculum';
 import { practiceSets } from '@/data/practiceExpansion';
 import { filterStudyProblems, normalizeProblemTrack } from '@/data/problemFilters';
+import { chooseUncompleted } from '@/data/randomPractice';
 import { CourseId, Problem } from '@/types';
 
 const completionOptions = [
@@ -39,6 +40,7 @@ export default function ProblemsScreen() {
     query, level, courseId, completion, track, paper, practiceSet, competitionSource, completedIds: completedProblems,
   }, courses, topics), [query, level, courseId, completion, track, paper, practiceSet, competitionSource, completedProblems]);
   const [visible, setVisible] = useState(40);
+  const hasUncompleted = results.some(problem => !completedProblems.includes(problem.id));
   useEffect(() => setVisible(40), [results]);
 
   return (
@@ -130,6 +132,12 @@ export default function ProblemsScreen() {
           </Pressable>
         ))}
       </View>
+      <Pressable accessibilityRole="button" accessibilityLabel="随机练一道未完成的题目"
+        accessibilityState={{ disabled: !hasUncompleted }} disabled={!hasUncompleted}
+        onPress={() => { const selected = chooseUncompleted(results, completedProblems); if (selected) router.push({ pathname: '/problem/[id]', params: { id: selected.id } }); }}
+        style={[styles.more, !hasUncompleted && { opacity: 0.5 }]}>
+        <Text style={styles.resourceLink}>{hasUncompleted ? '随机练一道未完成题目 →' : '当前筛选下没有未完成的题目'}</Text>
+      </Pressable>
       <Text style={styles.count}>{results.length} 道题 · 已显示 {Math.min(visible, results.length)} 道</Text>
       {!results.length ? <Pressable accessibilityRole="button" accessibilityLabel="清除例题全部筛选"
         onPress={() => { setQuery(''); setLevel(null); setCourseId(null); setCompletion('all'); setPaper('all'); setPracticeSet('all'); setCompetitionSource('all'); router.setParams({ track: 'all' }); }}

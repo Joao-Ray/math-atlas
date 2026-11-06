@@ -1,0 +1,11 @@
+const assert = require('node:assert/strict');
+const fs = require('node:fs');
+const ts = require('typescript');
+require.extensions['.ts'] = (mod, file) => mod._compile(ts.transpileModule(fs.readFileSync(file,'utf8'),{compilerOptions:{module:ts.ModuleKind.CommonJS}}).outputText,file);
+const { chooseUncompleted } = require('../data/randomPractice.ts');
+const results = [{id:'a'},{id:'b'},{id:'c'}];
+assert.equal(chooseUncompleted(results,['a'],0).id,'b');
+assert.equal(chooseUncompleted(results,['a'],0.99).id,'c');
+assert.equal(chooseUncompleted(results,['a','b','c'],0),null);
+assert.equal(chooseUncompleted([],[],0),null);
+console.log('Random practice: filtered choices and completion handling passed');
